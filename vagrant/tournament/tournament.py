@@ -13,14 +13,34 @@ def connect():
 
 def deleteMatches():
     """Remove all the match records from the database."""
+    db = connect()
+    cursor = db.cursor()
+    cursor.execute('delete from matches')
+    db.commit()
+    cursor.close()
+    db.close()
 
 
 def deletePlayers():
     """Remove all the player records from the database."""
+    db = connect()
+    cursor = db.cursor()
+    cursor.execute('delete from players')
+    db.commit()
+    cursor.close()
+    db.close()
 
 
 def countPlayers():
     """Returns the number of players currently registered."""
+    db = connect()
+    cursor = db.cursor()
+    cursor.execute('select count(*) from players')
+    number = cursor.fetchone()
+    cursor.close()
+    db.close()
+
+    return number[0]
 
 
 def registerPlayer(name):
@@ -32,6 +52,12 @@ def registerPlayer(name):
     Args:
       name: the player's full name (need not be unique).
     """
+    db = connect()
+    cursor = db.cursor()
+    cursor.execute('insert into players (name) values (%s)', (name,))
+    db.commit()
+    cursor.close()
+    db.close()
 
 
 def playerStandings():
@@ -47,6 +73,14 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
+    db = connect()
+    cursor = db.cursor()
+    cursor.execute('select * from scores')
+    scores = cursor.fetchall()
+    cursor.close()
+    db.close()
+
+    return scores
 
 
 def reportMatch(winner, loser):
@@ -56,6 +90,12 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
+    db = connect()
+    cursor = db.cursor()
+    cursor.execute('insert into matches (loser, winner) values (%s, %s)', (loser,winner,))
+    db.commit()
+    cursor.close()
+    db.close()
  
  
 def swissPairings():
@@ -73,5 +113,21 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
+    db = connect()
+    cursor = db.cursor()
+    cursor.execute('select * from scores')
+    scores = cursor.fetchall()
+    cursor.close()
+    db.close()
 
+    index = 0
+    pairs = []
+    for player in scores:
+        if index % 2 == 0:
+            current = scores[index]
+            next = scores[index + 1]
+            pairs.append((current[0], current[1], next[0], next[1]))
 
+        index += 1
+
+    return pairs
